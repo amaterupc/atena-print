@@ -1,0 +1,56 @@
+:root {
+    /* Color Palette - Premium Japanese Modern */
+    --primary-color: #1e3a5f;      /* Aizome - Deep Indigo */
+    --secondary-color: #fedfe1;    /* Sakura - Cherry Blossom */
+    --accent-color: #d71345;       /* Shuu - Vermillion */
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --text-main: #333333;
+    --text-sub: #666666;
+    --border-color: #e0e0e0;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+
+    /* Font Family */
+    --font-serif: "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", "MS PMincho", serif;
+    --font-sans: "Inter", "Outfit", "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.6;
+    height: 100vh;
+    overflow: hidden;
+}
+
+button {
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}

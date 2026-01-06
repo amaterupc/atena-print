@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>らくらく宛名印刷 - プレミアム・ハガキ作成ツール</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/print.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Outfit:wght@400;700&display=swap"
+        rel="stylesheet">
+    <!-- Dexie.js for IndexedDB -->
+    <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar: Address List -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">
+                    <span>🏣</span> 宛名印刷
+                </h1>
+            </div>
+            <div class="sidebar-content">
+                <div style="margin-bottom: var(--space-md);">
+                    <button id="add-contact-btn" class="btn btn-primary" style="width: 100%;">
+                        <span>＋</span> 新規連絡先
+                    </button>
+                </div>
+                <div id="contact-list">
+                    <!-- Contact items will be injected here -->
+                    <div class="address-item active">
+                        <div style="font-weight: bold;">サンプル 太郎 様</div>
+                        <div style="font-size: 0.8rem; color: var(--text-sub);">東京都千代田区1-1-1</div>
+                    </div>
+                </div>
+                <!-- Import/Export Buttons -->
+                <div
+                    style="margin-top: var(--space-lg); border-top: 1px solid var(--border-color); padding-top: var(--space-md); display: flex; gap: var(--space-sm);">
+                    <button id="import-btn" class="btn"
+                        style="flex: 1; background: white; border: 1px solid var(--border-color); font-size: 0.85rem;">
+                        📥 インポート
+                    </button>
+                    <button id="export-btn" class="btn"
+                        style="flex: 1; background: white; border: 1px solid var(--border-color); font-size: 0.85rem;">
+                        📤 エクスポート
+                    </button>
+                </div>
+                <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+            </div>
+        </aside>
+
+        <!-- Main Content: Preview and Controls -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <h2 id="current-contact-name">プレビュー</h2>
+                </div>
+                <div class="top-bar-right" style="display: flex; gap: var(--space-md);">
+                    <button id="settings-open-btn" class="btn"
+                        style="background: white; border: 1px solid var(--border-color);">
+                        ⚙️ 設定
+                    </button>
+                    <button id="print-btn" class="btn btn-primary">
+                        🖨️ 印刷する
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <div class="preview-pane">
+                    <!-- Postcard Structure -->
+                    <div id="postcard-preview" class="postcard">
+                        <!-- Postal Code Area -->
+                        <div class="postal-code-area"
+                            style="writing-mode: horizontal-tb; position: absolute; top: 12mm; left: 45mm; display: flex; gap: 4px; font-size: 1.2rem; letter-spacing: 4mm;">
+                            <span>1</span><span>0</span><span>0</span><span>0</span><span>0</span><span>0</span><span>1</span>
+                        </div>
+
+                        <!-- Address Line -->
+                        <div class="address-main"
+                            style="position: absolute; right: 15mm; top: 30mm; font-size: 1.5rem; max-height: 100mm;">
+                            東京都千代田区千代田１−１
+                        </div>
+
+                        <!-- Name Area -->
+                        <div class="name-area"
+                            style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: flex-start; gap: 2mm;">
+                            <div class="name-container" style="display: block; text-align: left;">
+                                <div class="name-text"
+                                    style="font-size: 2.5rem; letter-spacing: 0.1em; margin-bottom: 0.5em;">サンプル太郎
+                                </div>
+                                <div class="honorific" style="font-size: 1.5rem; text-align: center;">様</div>
+                            </div>
+                        </div>
+
+                        <!-- Sender Postal Code Area (left bottom, horizontal) -->
+                        <div class="sender-postal-code"
+                            style="writing-mode: horizontal-tb; position: absolute; bottom: 8mm; left: 5mm; display: flex; gap: 2px; font-size: 0.8rem;">
+                            <span>0</span><span>0</span><span>0</span><span>-</span><span>0</span><span>0</span><span>0</span><span>0</span>
+                        </div>
+
+                        <!-- Sender Area (name and address, vertical) -->
+                        <div class="sender-area"
+                            style="position: absolute; left: 10mm; bottom: 18mm; font-size: 0.85rem;">
+                            東京都港区芝公園4-2-8<br>
+                            差出人 太郎
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals (Add/Edit) -->
+    <div id="contact-modal" class="modal"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center;">
+        <div class="modal-content"
+            style="background: white; padding: 32px; border-radius: 16px; width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow);">
+            <h3 style="margin-bottom: 24px;">連絡先の追加/編集</h3>
+            <form id="contact-form">
+                <!-- Person 1 -->
+                <div style="margin-bottom: 16px; display: flex; gap: 8px;">
+                    <div style="flex: 2;">
+                        <label style="display: block; margin-bottom: 4px;">姓</label>
+                        <input type="text" name="lastName" required placeholder="山田"
+                            style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                    </div>
+                    <div style="flex: 2;">
+                        <label style="display: block; margin-bottom: 4px;">名</label>
+                        <input type="text" name="firstName" required placeholder="太郎"
+                            style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 4px;">敬称</label>
+                        <select name="honorific"
+                            style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                            <option value="様">様</option>
+                            <option value="殿">殿</option>
+                            <option value="御中">御中</option>
+                            <option value="先生">先生</option>
+                            <option value="ちゃん">ちゃん</option>
+                            <option value="くん">くん</option>
+                            <option value="">なし</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Person 2 (Joint Name) -->
+                <div id="person2-fields"
+                    style="margin-bottom: 16px; display: none; gap: 8px; padding: 12px; background: #f9f9f9; border-radius: 8px;">
+                    <div style="display: flex; gap: 8px; align-items: end;">
+                        <div style="flex: 2;">
+                            <label style="display: block; margin-bottom: 4px; font-size: 0.85rem;">連名2 姓</label>
+                            <input type="text" name="lastName2" placeholder="（空欄で同姓）"
+                                style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                        </div>
+                        <div style="flex: 2;">
+                            <label style="display: block; margin-bottom: 4px; font-size: 0.85rem;">名</label>
+                            <input type="text" name="firstName2" placeholder="花子"
+                                style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; margin-bottom: 4px; font-size: 0.85rem;">敬称</label>
+                            <select name="honorific2"
+                                style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                                <option value="様">様</option>
+                                <option value="殿">殿</option>
+                                <option value="ちゃん">ちゃん</option>
+                                <option value="くん">くん</option>
+                                <option value="">なし</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Person 3 (Joint Name) -->
+                <div id="person3-fields"
+                    style="margin-bottom: 16px; display: none; gap: 8px; padding: 12px; background: #f5f5f5; border-radius: 8px;">
+                    <div style="display: flex; gap: 8px; align-items: end;">
+                        <div style="flex: 2;">
+                            <label style="display: block; margin-bottom: 4px; font-size: 0.85rem;">連名3 姓</label>
+                            <input type="text" name="lastName3" placeholder="（空欄で同姓）"
+                                style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                        </div>
+                        <div style="flex: 2;">
+                            <label style="display: block; margin-bottom: 4px; font-size: 0.85rem;">名</label>
+                            <input type="text" name="firstName3" placeholder="次郎"
+                                style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                        </div>
+                        <div style="flex: 1;">
+                            <label style="display: block; margin-bottom: 4px; font-size: 0.85rem;">敬称</label>
+                            <select name="honorific3"
+                                style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                                <option value="様">様</option>
+                                <option value="殿">殿</option>
+                                <option value="ちゃん">ちゃん</option>
+                                <option value="くん">くん</option>
+                                <option value="">なし</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <button type="button" id="add-joint-btn" class="btn"
+                        style="font-size: 0.85rem; background: white; border: 1px dashed var(--border-color);">
+                        ＋ 連名を追加
+                    </button>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 4px;">郵便番号</label>
+                    <input type="text" name="zip" required
+                        style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 4px;">住所</label>
+                    <textarea name="address" required
+                        style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; height: 80px;"></textarea>
+                </div>
+
+                <!-- New Year Card Tracking -->
+                <div
+                    style="margin-bottom: 16px; padding: 12px; background: linear-gradient(135deg, #fff5f5, #f5f5ff); border-radius: 8px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">🎍 年賀状管理</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <label style="display: flex; align-items: center; gap: 4px; font-size: 0.85rem;">
+                            <input type="checkbox" name="sent2025"> 2025年 送付
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 4px; font-size: 0.85rem;">
+                            <input type="checkbox" name="received2025"> 2025年 受取
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 4px; font-size: 0.85rem;">
+                            <input type="checkbox" name="sent2026"> 2026年 送付
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 4px; font-size: 0.85rem;">
+                            <input type="checkbox" name="received2026"> 2026年 受取
+                        </label>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px;">
+                    <button type="button" id="close-modal" class="btn">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">保存する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Settings Modal (Sender Info) -->
+    <div id="settings-modal" class="modal"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center;">
+        <div class="modal-content"
+            style="background: white; padding: 32px; border-radius: 16px; width: 400px; box-shadow: var(--shadow);">
+            <h3 style="margin-bottom: 24px;">差出人情報の設定</h3>
+            <form id="settings-form">
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 4px;">差出人名</label>
+                    <input type="text" name="senderName"
+                        style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 4px;">郵便番号</label>
+                    <input type="text" name="senderZip" placeholder="123-4567"
+                        style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 4px;">差出人住所</label>
+                    <textarea name="senderAddress"
+                        style="width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; height: 60px;"></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px;">
+                    <button type="button" id="close-settings" class="btn">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">保存する</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/db.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

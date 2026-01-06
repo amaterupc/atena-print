@@ -1,0 +1,66 @@
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    /* Reset display for containers needed for printing */
+    .app-container,
+    .main-content,
+    .content-body,
+    .preview-pane {
+        visibility: visible;
+        display: block !important;
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+        background: none !important;
+    }
+
+    /* Hide UI elements explicitly */
+    .sidebar,
+    .top-bar,
+    .modal,
+    #add-contact-btn,
+    .btn {
+        display: none !important;
+    }
+
+    /* Postcard styling for print */
+    #postcard-preview {
+        visibility: visible;
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100mm;
+        height: 148mm;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        border: none;
+        z-index: 9999;
+    }
+
+    #postcard-preview * {
+        visibility: visible;
+    }
+
+    @page {
+        size: 100mm 148mm;
+        margin: 0;
+    }
+}
+
+/* Modal and Utility Styles for Screen */
+.modal {
+    transition: opacity 0.3s ease;
+}
+
+.postal-code-area span {
+    display: inline-block;
+    width: 3.5mm;
+    /* Approx width matching postcards */
+    text-align: center;
+}
