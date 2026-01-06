@@ -1,6 +1,6 @@
 # らくらく宛名印刷
 
-[![Project Status: Alpha – Initial release with settled designs, development is still in progress.](https://www.repostatus.org/badges/latest/alpha.svg)](https://www.repostatus.org/#alpha)
+![Project Status: Alpha](https://img.shields.io/badge/project_status-alpha-orange)
 
 > [!CAUTION]
 > **本プロジェクトは現在アルファ版（開発途上）です。**
