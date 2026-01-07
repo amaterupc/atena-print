@@ -244,39 +244,35 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- SENDER INITIALIZATION FROM JSON ---
     const initializeSender = async () => {
-        try {
-            // Add timestamp to avoid caching
-            const response = await fetch('conf/sender.json?t=' + Date.now());
-            if (response.ok) {
-                const data = await response.json();
-                if (data.senderName) await db.settings.put({ key: 'senderName', value: data.senderName });
-                if (data.senderZip) await db.settings.put({ key: 'senderZip', value: data.senderZip });
-                if (data.senderAddress) await db.settings.put({ key: 'senderAddress', value: data.senderAddress });
-                console.log('Sender info initialized from conf/sender.json');
-
-                if (document.body.classList.contains('debug-mode')) {
-                    const msg = document.createElement('div');
-                    msg.style = 'font-size: 10px; color: #fff; background: rgba(0,0,0,0.5); padding: 2px 5px; margin-top: 5px; border-radius: 2px;';
-                    msg.innerText = '✓ conf/sender.json loaded';
-                    const badge = document.querySelector('div[style*="position:fixed; bottom:10px"]');
-                    if (badge) badge.appendChild(msg);
+        const tryLoad = async (filename) => {
+            try {
+                const response = await fetch(`${filename}?t=${Date.now()}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.senderName) await db.settings.put({ key: 'senderName', value: data.senderName });
+                    if (data.senderZip) await db.settings.put({ key: 'senderZip', value: data.senderZip });
+                    if (data.senderAddress) await db.settings.put({ key: 'senderAddress', value: data.senderAddress });
+                    console.log(`Sender info initialized from ${filename}`);
+                    if (document.body.classList.contains('debug-mode')) {
+                        const msg = document.createElement('div');
+                        msg.style = 'font-size: 10px; color: #fff; background: rgba(0,0,0,0.5); padding: 2px 5px; margin-top: 5px; border-radius: 2px;';
+                        msg.innerText = `✓ ${filename} loaded`;
+                        const badge = document.querySelector('div[style*="position:fixed; bottom:10px"]');
+                        if (badge) badge.appendChild(msg);
+                    }
+                    return true;
                 }
-            } else {
-                console.warn(`Failed to load conf/sender.json: ${response.status} ${response.statusText}`);
-                if (window.location.protocol === 'file:') {
-                    console.error('FETCH ERROR: Browsers block "fetch" on file:// protocol for security. Please use a local server (e.g. VSCode Live Server).');
-                }
+            } catch (e) {
+                console.error(`Error loading ${filename}:`, e);
             }
-        } catch (e) {
-            console.error('Error fetching conf/sender.json:', e);
-            if (document.body.classList.contains('debug-mode')) {
-                const badge = document.querySelector('div[style*="position:fixed; bottom:10px"]');
-                if (badge) {
-                    const err = document.createElement('div');
-                    err.style = 'font-size: 9px; color: #ff9999; margin-top: 5px;';
-                    err.innerText = '⚠ JSON Load Failed (Check Console)';
-                    badge.appendChild(err);
-                }
+            return false;
+        };
+
+        const loadedPrivate = await tryLoad('conf/sender.json');
+        if (!loadedPrivate) {
+            const senderInfo = await db.settings.get('senderName');
+            if (!senderInfo) {
+                await tryLoad('conf/sender_sample.json');
             }
         }
     };
