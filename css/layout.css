@@ -150,8 +150,8 @@
 /* 宛先郵便番号 */
 .postal-code-area {
     position: absolute;
-    top: 12mm;
-    right: 8mm;
+    top: 13mm;
+    right: 9mm;
     /* 右あわせ */
     left: auto !important;
     /* インラインスタイル上書き用 */
@@ -184,7 +184,7 @@
 
 /* 3桁目の右側（ハイフン部分）は広く取る */
 .postal-code-area span:nth-child(3) {
-    margin-right: 7.2mm;
+    margin-right: 5.2mm;
     /* ハイフン枠幅 + 前後余白 */
 }
 
@@ -197,7 +197,7 @@
 /* 差出人郵便番号 */
 .sender-postal-code {
     position: absolute;
-    bottom: 13mm;
+    bottom: 19mm;
     left: 6mm;
     /* 左あわせ */
     display: flex;
@@ -219,7 +219,7 @@
 }
 
 .sender-postal-code span:nth-child(3) {
-    margin-right: 4mm;
+    margin-right: 1mm;
     /* ハイフン分 */
 }
 
