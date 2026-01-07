@@ -11,12 +11,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- DEBUG MODE CHECK ---
     const params = new URLSearchParams(window.location.search);
-    if (params.get('debug') === 'true') {
+    const isDebug = params.get('debug') === 'true';
+    const isLayoutDebug = params.get('debug') === 'layout';
+
+    if (isDebug || isLayoutDebug) {
         document.body.classList.add('debug-mode');
-        console.log('DEBUG MODE: Active');
+        if (isLayoutDebug) document.body.classList.add('debug-layout');
+
+        console.log(`DEBUG MODE: ${isLayoutDebug ? 'Layout' : 'Standard'} Active`);
+
         const badge = document.createElement('div');
         badge.style = 'position:fixed; bottom:10px; right:10px; background:rgba(255,0,0,0.8); color:white; padding:4px 8px; z-index:9999; font-weight:bold; border-radius:4px; font-size:12px; pointer-events:none;';
-        badge.innerText = 'DEBUG MODE ON';
+        badge.innerText = isLayoutDebug ? 'LAYOUT DEBUG ON' : 'DEBUG MODE ON';
         document.body.appendChild(badge);
     }
     // -------------------------
