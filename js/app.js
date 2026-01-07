@@ -9,24 +9,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let currentSelectedId = null;
 
-    // --- DEBUG MODE CHECK ---
-    const params = new URLSearchParams(window.location.search);
-    const isDebug = params.get('debug') === 'true';
-    const isLayoutDebug = params.get('debug') === 'layout';
-
-    if (isDebug || isLayoutDebug) {
-        document.body.classList.add('debug-mode');
-        if (isLayoutDebug) document.body.classList.add('debug-layout');
-
-        console.log(`DEBUG MODE: ${isLayoutDebug ? 'Layout' : 'Standard'} Active`);
-
-        const badge = document.createElement('div');
-        badge.style = 'position:fixed; bottom:10px; right:10px; background:rgba(255,0,0,0.8); color:white; padding:4px 8px; z-index:9999; font-weight:bold; border-radius:4px; font-size:12px; pointer-events:none;';
-        badge.innerText = isLayoutDebug ? 'LAYOUT DEBUG ON' : 'DEBUG MODE ON';
-        document.body.appendChild(badge);
-    }
-    // -------------------------
-
     // Load and render contacts
     async function loadContacts() {
         const contacts = await getAllContacts();
@@ -237,7 +219,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Update sender address and name
         const senderArea = previewArea.querySelector('.sender-area');
-        senderArea.innerHTML = `${(addr?.value || '住所未設定').replace(/\n/g, '<br>')}<br>${name?.value || '名前未設定'}`;
+        senderArea.innerHTML = `
+            <div class="sender-address">${(addr?.value || '住所未設定').replace(/\n/g, '<br>')}</div>
+            <div class="sender-name">${name?.value || '名前未設定'}</div>
+        `;
     }
 
     // Print logic

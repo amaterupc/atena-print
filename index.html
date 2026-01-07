@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/print.css">
+    <link rel="stylesheet" href="css/debug.css">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,6 +67,10 @@
                         style="background: white; border: 1px solid var(--border-color);">
                         ⚙️ 設定
                     </button>
+                    <button id="debug-menu-btn" class="btn"
+                        style="background: white; border: 1px solid var(--border-color); color: var(--text-color);">
+                        🛠️ 調整
+                    </button>
                     <button id="print-btn" class="btn btn-primary">
                         🖨️ 印刷する
                     </button>
@@ -76,6 +81,11 @@
                 <div class="preview-pane">
                     <!-- Postcard Structure -->
                     <div id="postcard-preview" class="postcard">
+                        <!-- Background Image for Debugging -->
+                        <div id="debug-bg-image"
+                            style="display:none; position:absolute; inset:0; z-index:0; background-size:contain; background-repeat:no-repeat; opacity:0.5; pointer-events:none;">
+                        </div>
+
                         <!-- Postal Code Area -->
                         <div class="postal-code-area">
                             <span>1</span><span>0</span><span>0</span><span>0</span><span>0</span><span>0</span><span>1</span>
@@ -281,7 +291,86 @@
         </div>
     </div>
 
+    <!-- Debug Panel -->
+    <div id="debug-panel" class="debug-panel" style="display: none;">
+        <div class="debug-panel-header">
+            <h4>📏 レイアウト調整</h4>
+            <button id="close-debug-panel" style="background:none; border:none; cursor:pointer;">✕</button>
+        </div>
+        <div class="debug-panel-content">
+            <div class="debug-item">
+                <label>
+                    <input type="checkbox" id="toggle-grid"> グリッド表示 (5mm)
+                </label>
+            </div>
+            <div class="debug-item">
+                <label>
+                    <input type="checkbox" id="toggle-borders"> 要素枠線表示
+                </label>
+            </div>
+            <div class="debug-item">
+                <label>
+                    <input type="checkbox" id="toggle-rulers"> 1mm目盛りを表示 (郵便番号枠)
+                </label>
+            </div>
+            <hr class="debug-divider">
+            <div class="debug-item">
+                <label style="display:block; margin-bottom:4px;">比較用背景画像</label>
+                <input type="file" id="bg-image-input" accept="image/*" style="font-size:0.8rem; width:100%;">
+            </div>
+            <div class="debug-item">
+                <label style="display:block; margin-bottom:4px;">画像の不透明度: <span id="opacity-val">50</span>%</label>
+                <input type="range" id="opacity-slider" min="0" max="1" step="0.05" value="0.5" style="width:100%;">
+            </div>
+            <hr class="debug-divider">
+            <div class="debug-item">
+                <label style="display:block; margin-bottom:4px; font-weight:bold;">📍 位置調整</label>
+                <select id="adj-target" style="width:100%; padding:4px; margin-bottom:8px; font-size:0.85rem;">
+                    <option value="">-- 対象を選択 --</option>
+                    <option value=".postal-code-area">宛先郵便番号</option>
+                    <option value=".address-main">住所本文</option>
+                    <option value=".name-area">宛名氏名</option>
+                    <option value=".sender-postal-code">差出人郵便番号</option>
+                    <option value=".sender-area">差出人住所氏名</option>
+                </select>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                    <div>
+                        <label style="font-size:0.75rem;">X (mm):</label>
+                        <input type="number" id="adj-x" step="0.1" style="width:100%; padding:2px;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem;">Y (mm):</label>
+                        <input type="number" id="adj-y" step="0.1" style="width:100%; padding:2px;">
+                    </div>
+                </div>
+
+                <div id="adj-spacing-area"
+                    style="display:none; margin-top:8px; border-top:1px dashed #ccc; padding-top:8px;">
+                    <label style="font-size:0.75rem; font-weight:bold;">📮 文字間隔調整 (mm)</label>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                        <div>
+                            <label style="font-size:0.75rem;">通常:</label>
+                            <input type="number" id="adj-spacing-normal" step="0.1" style="width:100%; padding:2px;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem;">ハイフン部:</label>
+                            <input type="number" id="adj-spacing-hyphen" step="0.1" style="width:100%; padding:2px;">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:8px; display:flex; gap:4px;">
+                    <button id="adj-reset" class="btn"
+                        style="padding:4px 8px; font-size:0.75rem; background:#eee; flex:1;">リセット</button>
+                    <button id="adj-copy-css" class="btn"
+                        style="padding:4px 8px; font-size:0.75rem; background:#eee; flex:1;">CSSコピー</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="js/db.js"></script>
+    <script src="js/debug.js"></script>
     <script src="js/app.js"></script>
 </body>
 
