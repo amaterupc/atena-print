@@ -1,0 +1,182 @@
+/* Debug Panel Styles */
+.debug-panel {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    width: 280px;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    font-size: 0.9rem;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.debug-panel-header {
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-bottom: 1px solid var(--border-color);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.debug-panel-header h4 {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.debug-panel-content {
+    padding: 16px;
+}
+
+.debug-item {
+    margin-bottom: 12px;
+}
+
+.debug-item:last-child {
+    margin-bottom: 0;
+}
+
+.debug-divider {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    margin: 12px 0;
+}
+
+/* Grid Overlay */
+.postcard.show-grid {
+    background-image:
+        linear-gradient(rgba(0, 200, 255, 0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 200, 255, 0.3) 1px, transparent 1px);
+    background-size: 5mm 5mm;
+    /* 5mm grid */
+    background-position: center top;
+}
+
+/* Border Debugging (Enhanced from existing) */
+.postcard.show-borders>div {
+    outline: 1px solid rgba(255, 0, 0, 0.5) !important;
+    outline-offset: -1px !important;
+    background-color: rgba(255, 0, 0, 0.05) !important;
+}
+
+.postcard.show-borders>div:hover {
+    outline-color: red !important;
+    background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
+/* Hide debug elements when printing */
+@media print {
+
+    .debug-panel,
+    #debug-menu-btn,
+    #debug-bg-image {
+        display: none !important;
+    }
+
+    .postcard.show-grid {
+        background-image: none !important;
+    }
+
+    .postcard.show-borders>div {
+        outline: none !important;
+        background-color: transparent !important;
+    }
+
+    /* Reset opacity for print */
+    .postcard>*:not(#debug-bg-image) {
+        opacity: 1 !important;
+    }
+
+    /* Hide Rulers */
+    .postal-code-area::before,
+    .postal-code-area::after,
+    .sender-postal-code::before,
+    .sender-postal-code::after {
+        display: none !important;
+    }
+}
+
+/* Ruler Layout (1mm scales) */
+.debug-layout .postal-code-area,
+.debug-layout .sender-postal-code {
+    outline: 1px solid rgba(0, 0, 255, 0.3) !important;
+}
+
+/* 1mm Ruler Drawing (Common) */
+.debug-layout .postal-code-area::before,
+.debug-layout .postal-code-area::after,
+.debug-layout .sender-postal-code::before,
+.debug-layout .sender-postal-code::after {
+    content: '' !important;
+    position: absolute !important;
+    pointer-events: none !important;
+    z-index: 1000 !important;
+    opacity: 0.6 !important;
+}
+
+/* Horizontal Ruler (Top side) */
+.debug-layout .postal-code-area::before,
+.debug-layout .sender-postal-code::before {
+    bottom: 100% !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 10mm !important;
+    background-image:
+        /* 10mm Lines */
+        repeating-linear-gradient(90deg, #00f 0, #00f 1px, transparent 1px, transparent 10mm),
+        /* 5mm Lines */
+        repeating-linear-gradient(90deg, #55f 0, #55f 1px, transparent 1px, transparent 5mm),
+        /* 1mm Lines */
+        repeating-linear-gradient(90deg, #aaf 0, #aaf 1px, transparent 1px, transparent 1mm);
+    background-size: 100% 10mm, 100% 6mm, 100% 4mm;
+    background-repeat: no-repeat;
+    background-position: bottom left;
+}
+
+/* Vertical Ruler (Left/Right side) */
+.debug-layout .postal-code-area::after,
+.debug-layout .sender-postal-code::after {
+    top: 0 !important;
+    height: 100% !important;
+    width: 10mm !important;
+}
+
+/* Recipient (Right to Left layout support) - Ruler on Right */
+.debug-layout .postal-code-area::after {
+    left: 100% !important;
+    background-image:
+        repeating-linear-gradient(0deg, #00f 0, #00f 1px, transparent 1px, transparent 10mm),
+        repeating-linear-gradient(0deg, #55f 0, #55f 1px, transparent 1px, transparent 5mm),
+        repeating-linear-gradient(0deg, #aaf 0, #aaf 1px, transparent 1px, transparent 1mm);
+    background-size: 10mm 100%, 6mm 100%, 4mm 100%;
+    background-repeat: no-repeat;
+    background-position: center left;
+}
+
+/* Sender - Ruler on Left */
+.debug-layout .sender-postal-code::after {
+    right: 100% !important;
+    background-image:
+        repeating-linear-gradient(0deg, #00f 0, #00f 1px, transparent 1px, transparent 10mm),
+        repeating-linear-gradient(0deg, #55f 0, #55f 1px, transparent 1px, transparent 5mm),
+        repeating-linear-gradient(0deg, #aaf 0, #aaf 1px, transparent 1px, transparent 1mm);
+    background-size: 10mm 100%, 6mm 100%, 4mm 100%;
+    background-repeat: no-repeat;
+    background-position: center right;
+}
