@@ -242,8 +242,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initial load
     await loadContacts();
 
-    // --- SENDER INITIALIZATION FROM JSON ---
+    // --- SENDER INITIALIZATION ---
     const initializeSender = async () => {
+        // Default data (matches conf/sender_sample.json)
+        const defaultData = {
+            senderName: "山田 太郎",
+            senderZip: "100-0001",
+            senderAddress: "東京都千代田区千代田1-1\n千代田マンション101"
+        };
+
         const tryLoad = async (filename) => {
             try {
                 const response = await fetch(`${filename}?t=${Date.now()}`);
@@ -252,6 +259,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (data.senderName) await db.settings.put({ key: 'senderName', value: data.senderName });
                     if (data.senderZip) await db.settings.put({ key: 'senderZip', value: data.senderZip });
                     if (data.senderAddress) await db.settings.put({ key: 'senderAddress', value: data.senderAddress });
+
                     console.log(`Sender info initialized from ${filename}`);
                     if (document.body.classList.contains('debug-mode')) {
                         const msg = document.createElement('div');
@@ -263,16 +271,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return true;
                 }
             } catch (e) {
-                console.error(`Error loading ${filename}:`, e);
+                // console.error(`Error loading ${filename}:`, e);
+                // Silent fail is expected in some environments
             }
             return false;
         };
 
+        // 1. Try to load user's private config (conf/sender.json)
+        // This might fail if using file:// protocol or if file doesn't exist
         const loadedPrivate = await tryLoad('conf/sender.json');
+
+        // 2. If private config failed to load, check if DB is empty
         if (!loadedPrivate) {
-            const senderInfo = await db.settings.get('senderName');
-            if (!senderInfo) {
-                await tryLoad('conf/sender_sample.json');
+            const currentName = await db.settings.get('senderName');
+
+            // 3. If DB is empty, apply default sample data
+            if (!currentName) {
+                console.log('Applying default sender data (sample)');
+                await db.settings.put({ key: 'senderName', value: defaultData.senderName });
+                await db.settings.put({ key: 'senderZip', value: defaultData.senderZip });
+                await db.settings.put({ key: 'senderAddress', value: defaultData.senderAddress });
             }
         }
     };
