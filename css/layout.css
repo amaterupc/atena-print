@@ -150,7 +150,7 @@
 /* 宛先郵便番号 */
 .postal-code-area {
     position: absolute;
-    top: 14mm;
+    top: 16mm;
     right: 11.5mm;
     /* 右あわせ */
     left: auto !important;
@@ -197,7 +197,7 @@
 /* 差出人郵便番号 */
 .sender-postal-code {
     position: absolute;
-    bottom: 25mm;
+    bottom: 31mm;
     left: 6mm;
     /* 左あわせ */
     display: flex;
